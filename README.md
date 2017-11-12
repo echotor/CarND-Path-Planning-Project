@@ -1,5 +1,47 @@
 # CarND-Path-Planning-Project
 Self-Driving Car Engineer Nanodegree Program
+
+## Infomation
+
+### State of the running car
+There are three certain state: keep line, change lane and currently changing line. So we just compute the next action according to previous and current state of our car and related cars. Because of the continue state, we need record the action by come method. So we keep track of the state with two variables:
+* *g_changing_lane* will be true if we have decided to change lane and go back to false when our change of lane is complete,
+* *g_target_lane* will represent which lane the car will follow, which is useful to generate consistent trajectories.
+
+### Generation of the car's trajectory
+For car's trajectory, we need think about two thing: should it change and how it change. When we decide the action, we should create a *spline* to generate the car's trajetory. Through these action, we should follow these principles:
+* At each step, we keep the last 10 time frames from previous calculated trajectory to ensure safety of our trajectory, which is equivalent to 0.2 sec.
+* At the begin of decision, we alway calculate the other car to check those car is far away enough from our car.
+* We use a *simple cubic spline interpolation library* to generate the car's trajetory
+* The target trajectory and the target speed have a prediction over a total of 50 time frames (1 second).
+
+### Speed calculation
+The speed that car use is very important. It should follow these principles:
+* Can not over max speed limit(50mph).
+* Through a checking function to decide speed up or slow down. We add up or slow the speed by limit acceleration in the function. The logic is below:
+  * go through all related car from the sensor fusion.
+  * calculate the related value of those cars.
+  * if the line of the other car is in our line, we check if they are in front of us and close.
+  * we check our car is still with in a safe distance at future.
+  * if the case is yes, we speed up our car, or slow down.
+
+### Lane change
+For lane change, it happens in the case of there is a car in front of our car. To change lane safely, we should do something:
+* Check the safety of the lines we can change to.
+* Calculate the line we can change to. To achive this, we compare the other cars from fusion data with our car and calculate the line we are in.
+* The comparison we used is that whether trajetory of other car and trajetory of mine is coincident or not. If the coincidence is occurred, we can not change line.
+* The state of change lane is continued action. We record the state by a variable and refresh the state untill the action is completed.
+
+### Result
+* The code compiles correctly.
+* The code does compile with CMake and Make.
+* The car is able to drive at least 4.32 miles without incident.
+* The car drives according to the speed limit.
+* The car's target reference velocity is set to 49.95mph, and does not exceed that target.
+* Max Acceleration and Jerk are not Exceeded.
+* Car does not have collisions.
+
+## Origin Desc
    
 ### Simulator.
 You can download the Term3 Simulator which contains the Path Planning Project from the [releases tab (https://github.com/udacity/self-driving-car-sim/releases).
